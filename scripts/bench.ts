@@ -156,7 +156,7 @@ async function main(): Promise<void> {
     },
     {
       name: "bridge-grep",
-      cmd: `grep -R -n --fixed-strings ${q(GREP_QUERY)} ${q(TARGET_PATH)} >/dev/null`,
+      cmd: `NCR_ENABLE_FFF_GREP=1 grep -R -n --fixed-strings ${q(GREP_QUERY)} ${q(TARGET_PATH)} >/dev/null`,
       enabled: true,
     },
     {

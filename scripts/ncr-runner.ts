@@ -85,6 +85,16 @@ async function routeGrep(origArgs: string[]): Promise<RouteDecision> {
     return { backend: "native", reason: "explicit bypass", command: RAW_GREP, args: filtered };
   }
 
+  const fffEnabled = process.env.NCR_ENABLE_FFF_GREP === "1" || process.env.CMD_BRIDGE_ENABLE_FFF_GREP === "1";
+  if (!fffEnabled) {
+    return {
+      backend: "native",
+      reason: "fff grep disabled by default (set NCR_ENABLE_FFF_GREP=1)",
+      command: RAW_GREP,
+      args: origArgs,
+    };
+  }
+
   if (!(await commandExists("fff-mcp"))) {
     return { backend: "native", reason: "fff-mcp not available", command: RAW_GREP, args: origArgs };
   }

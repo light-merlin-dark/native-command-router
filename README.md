@@ -1,13 +1,13 @@
 ```
-███╗   ██╗ ██████╗██████╗ 
+███╗   ██╗ ██████╗██████╗
 ████╗  ██║██╔════╝██╔══██╗
 ██╔██╗ ██║██║     ██████╔╝
 ██║╚██╗██║██║     ██╔══██╗
 ██║ ╚████║╚██████╗██║  ██║
 ╚═╝  ╚═══╝ ╚═════╝╚═╝  ╚═╝
 
-Native Command Router
-Compatibility-first command routing for find/grep with optimization plugins
+Native Command Router for Developers and AI Agents
+Compatibility-first routing • Optimization plugins • Strict native fallback
 ```
 
 ## Why?
@@ -48,7 +48,8 @@ NCR is not a command replacement language. It is a compatibility router.
 
 ### `grep`
 
-- Routed to optimized backend for this safe subset:
+- Default: routed to native grep (compatibility mode).
+- Opt-in optimized backend with `NCR_ENABLE_FFF_GREP=1` for this safe subset:
   - `grep -R|-r [-n] [-F|--fixed-strings] PATTERN DIR`
 - Falls back to native grep for:
   - regex/meta patterns
@@ -72,6 +73,12 @@ Run native vs routed vs optimized backend:
 
 ```bash
 make bench BENCH_PATH=/path/to/repo BENCH_GREP_QUERY=TODO BENCH_FILE_QUERY=ts
+```
+
+Test optimized grep path explicitly:
+
+```bash
+NCR_ENABLE_FFF_GREP=1 grep -R -n --fixed-strings TODO /path/to/repo
 ```
 
 Run warm/cold backend session timing:

@@ -1,5 +1,7 @@
 #!/usr/bin/env node
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
+import { existsSync } from "node:fs";
+import path from "node:path";
 
 const args = new Map<string, string>();
 for (let i = 2; i < process.argv.length; i += 2) {
@@ -9,6 +11,8 @@ for (let i = 2; i < process.argv.length; i += 2) {
 }
 
 const BASE_PATH = args.get("--path") ?? process.cwd();
+const BASE_PATH_ABS = path.resolve(BASE_PATH);
+const PATH_IS_ABSOLUTE_INPUT = path.isAbsolute(BASE_PATH);
 const QUERY = args.get("--query") ?? "";
 const WITH_LINE_NUMBER = (args.get("--line-number") ?? "1") === "1";
 const MAX_RESULTS = Number(args.get("--max-results") ?? "200");
@@ -134,11 +138,17 @@ function normalizeHeader(line: string): string {
     .replace(/\s+git:[a-z_,]+$/, "");
 }
 
-function parseMatches(text: string): { out: string[]; nextCursor: string } {
+type GrepMatch = {
+  file: string;
+  line: string;
+  text: string;
+};
+
+function parseMatches(text: string): { out: GrepMatch[]; nextCursor: string } {
   const lines = text.split("\n");
   let currentFile = "";
   let nextCursor = "";
-  const out: string[] = [];
+  const out: GrepMatch[] = [];
 
   for (const raw of lines) {
     const line = raw.replace(/\r$/, "");
@@ -150,7 +160,7 @@ function parseMatches(text: string): { out: string[]; nextCursor: string } {
 
     const m = line.match(/^\s*(\d+):\s?(.*)$/);
     if (m && currentFile) {
-      out.push(WITH_LINE_NUMBER ? `${currentFile}:${m[1]}:${m[2]}` : `${currentFile}:${m[2]}`);
+      out.push({ file: currentFile, line: m[1], text: m[2] });
       continue;
     }
 
@@ -160,6 +170,45 @@ function parseMatches(text: string): { out: string[]; nextCursor: string } {
   }
 
   return { out, nextCursor };
+}
+
+function getGitRoot(basePath: string): string | null {
+  try {
+    const out = execFileSync("git", ["-C", basePath, "rev-parse", "--show-toplevel"], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    return out || null;
+  } catch {
+    return null;
+  }
+}
+
+const GIT_ROOT = getGitRoot(BASE_PATH_ABS);
+
+function resolveResultPath(rawFile: string): string {
+  if (path.isAbsolute(rawFile)) return path.normalize(rawFile);
+
+  const fromBase = path.resolve(BASE_PATH_ABS, rawFile);
+  if (existsSync(fromBase)) return fromBase;
+
+  if (GIT_ROOT) {
+    const fromGitRoot = path.resolve(GIT_ROOT, rawFile);
+    if (existsSync(fromGitRoot)) return fromGitRoot;
+  }
+
+  return fromBase;
+}
+
+function isWithinBase(absPath: string): boolean {
+  const rel = path.relative(BASE_PATH_ABS, absPath);
+  return rel === "" || (!rel.startsWith("..") && !path.isAbsolute(rel));
+}
+
+function renderPathForOutput(absPath: string): string {
+  if (PATH_IS_ABSOLUTE_INPUT) return absPath;
+  const rel = path.relative(process.cwd(), absPath);
+  return rel || ".";
 }
 
 async function waitUntilIndexed(cli: McpClient): Promise<void> {
@@ -194,10 +243,18 @@ async function main(): Promise<void> {
       const text = res?.content?.[0]?.text ?? "";
       const parsed = parseMatches(text);
 
-      for (const line of parsed.out) {
-        process.stdout.write(`${line}\n`);
+      for (const match of parsed.out) {
+        const absFile = resolveResultPath(match.file);
+        if (!isWithinBase(absFile)) continue;
+
+        const renderedPath = renderPathForOutput(absFile);
+        if (WITH_LINE_NUMBER) {
+          process.stdout.write(`${renderedPath}:${match.line}:${match.text}\n`);
+        } else {
+          process.stdout.write(`${renderedPath}:${match.text}\n`);
+        }
+        total += 1;
       }
-      total += parsed.out.length;
 
       if (!parsed.nextCursor) break;
       cursor = parsed.nextCursor;
