@@ -1,0 +1,25 @@
+{
+  "name": "cmd-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Safe command shims that route supported searches to high-performance backends with native fallback.",
+  "scripts": {
+    "install:local": "bun run scripts/install.ts",
+    "uninstall:local": "bun run scripts/uninstall.ts",
+    "doctor": "bun run scripts/doctor.ts",
+    "bench": "bun run scripts/bench.ts",
+    "bench:mcp": "bun run scripts/bench-mcp.ts",
+    "build:runner": "bun build scripts/cmd-bridge-runner.ts --target node --format esm --outfile dist/cmd-bridge-runner.mjs",
+    "build:grep-helper": "bun build scripts/grep-fff-helper.ts --target node --format esm --outfile dist/grep-fff-helper.mjs",
+    "build:find-helper": "bun build scripts/fff-find-helper.ts --target node --format esm --outfile dist/fff-find-helper.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "bun-types": "^1.3.1",
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "bun": ">=1.1.0"
+  }
+}
