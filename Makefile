@@ -5,7 +5,7 @@ BENCH_FILE_QUERY ?= ts
 BENCH_RUNS ?= 5
 BENCH_WARMUP ?= 1
 
-.PHONY: help bootstrap install uninstall reinstall doctor bench bench-session bench-mcp
+.PHONY: help bootstrap install uninstall reinstall doctor bench bench-session bench-mcp test-conformance plugins bench-perf bench-fast
 
 help:
 	@echo "native-command-router (ncr)"
@@ -16,6 +16,10 @@ help:
 	@echo "  make doctor      # print router status"
 	@echo "  make bench       # run native vs bridge vs fff benchmark"
 	@echo "  make bench-session # run backend warm/cold session benchmark"
+	@echo "  make test-conformance # run conformance test suite"
+	@echo "  make plugins     # list registered plugins"
+	@echo "  make bench-perf  # run stable profile overhead benchmarks"
+	@echo "  make bench-fast  # run fast profile speedup benchmarks"
 
 bootstrap:
 	bun install
@@ -38,3 +42,15 @@ bench-session:
 	bun run scripts/bench-session.ts --path "$(BENCH_PATH)" --tool grep --query "$(BENCH_GREP_QUERY)" --mode warm --iters 20 --max-results 200
 
 bench-mcp: bench-session
+
+test-conformance:
+	bun run tests/conformance.ts
+
+plugins:
+	bun run scripts/plugins-cli.ts list
+
+bench-perf:
+	bun run tests/bench-perf.ts
+
+bench-fast:
+	bun run tests/bench-fast-profile.ts

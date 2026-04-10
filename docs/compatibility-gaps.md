@@ -45,6 +45,47 @@ For supported shapes, plugin output should match native match completeness (or p
 - Repository: <https://github.com/dmtrKovalenko/fff.nvim>
 - Issue: <https://github.com/dmtrKovalenko/fff.nvim/issues/365>
 
+### GAP-002: smart-find filters noise directories producing fewer results than native `find`
+
+- Date observed: 2026-04-10
+- Area: `find` routing (`smart-find` backend)
+- Severity: Medium (intentional behavior, not drop-in compatible)
+- Status: Open (design decision needed)
+
+#### Reproduction
+
+```bash
+FIXTURE=/path/to/repo-with-node-modules
+
+/usr/bin/find "$FIXTURE" -type f | wc -l
+# NCR routes to smart-find:
+bun scripts/ncr-runner.ts find "$FIXTURE" -type f | wc -l
+```
+
+Observed:
+
+- Native `find` includes all files in `node_modules/`, `dist/`, `build/`
+- smart-find filters these noise directories, producing fewer results
+
+#### Expected
+
+For drop-in compatibility, NCR-routed find should produce native-equivalent output.
+
+#### Current Mitigation
+
+- Users can bypass with `SMART_FIND=0 find ...` or `find --raw ...`
+- This is intentional smart-find behavior but breaks the drop-in contract for SF-1
+
+#### Resolution Options
+
+1. ~~Make smart-find behavior opt-in (like FFF grep) until native-equivalent routing is verified~~ **Adopted: smart-find is now opt-in via NCR_ENABLE_SMART_FIND=1 or NCR_PROFILE=fast**
+2. Track as known design tradeoff in supported matrix
+3. Add `drop_in_safe` flag to find routing policy
+
+#### Resolution (2026-04-10)
+
+Smart-find is now gated behind the plugin system. In `stable` profile (default), find routes to native. In `fast` profile, smart-find is enabled. This preserves drop-in safety for SF-1.
+
 ## Closed Gaps
 
 None yet.

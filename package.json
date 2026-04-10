@@ -14,7 +14,12 @@
     "bench:mcp": "bun run scripts/bench-session.ts",
     "build:runner": "bun build scripts/ncr-runner.ts --target node --format esm --outfile dist/ncr-runner.mjs",
     "build:grep-helper": "bun build scripts/grep-fff-helper.ts --target node --format esm --outfile dist/grep-fff-helper.mjs",
-    "build:find-helper": "bun build scripts/fff-find-helper.ts --target node --format esm --outfile dist/fff-find-helper.mjs"
+    "build:find-helper": "bun build scripts/fff-find-helper.ts --target node --format esm --outfile dist/fff-find-helper.mjs",
+    "plugins": "bun run scripts/plugins-cli.ts",
+    "ncr": "bun run scripts/plugins-cli.ts",
+    "test:conformance": "bun run tests/conformance.ts",
+    "bench:perf": "bun run tests/bench-perf.ts",
+    "bench:fast": "bun run tests/bench-fast-profile.ts"
   },
   "devDependencies": {
     "@types/node": "^22.15.3",

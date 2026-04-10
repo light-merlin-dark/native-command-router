@@ -20,15 +20,24 @@ If any success factor is unmet, the project remains in-progress regardless of sp
 
 ## Current State Snapshot
 
-1. `find` is intercepted and routed to `smart-find` backend.
-2. `grep` is intercepted; default path is native for compatibility.
-3. FFF grep route exists but is opt-in via `NCR_ENABLE_FFF_GREP=1`.
-4. Known FFF grep completeness gap is tracked in:
-   - `docs/compatibility-gaps.md` (GAP-001)
-   - Upstream issue: <https://github.com/dmtrKovalenko/fff.nvim/issues/365>
-5. Local agent constitution pattern exists:
-   - `AGENTS.example.md` (tracked)
-   - `AGENTS.md` is gitignored
+1. `find` and `grep` both default to native routing (stable profile).
+2. Plugin system with capability model (`drop_in_safe`, `ranked_preview`) gates optimized backends.
+3. `fast` profile enables smart-find and FFF grep via `NCR_PROFILE=fast`.
+4. FFF grep route is opt-in; completeness gap tracked as GAP-001.
+5. Smart-find noise-dir filtering gap tracked as GAP-002 (resolved via opt-in).
+6. Conformance test harness at `tests/conformance.ts`:
+   - 30 tests: 27 pass, 0 fail, 2 xfail (known gaps), 1 skip
+   - 9 stress tests: 9 pass, 0 fail
+   - Run via `make test-conformance`
+7. Machine-readable supported matrix at `docs/supported-matrix.json`.
+8. CI workflow at `.github/workflows/conformance.yml` (macOS + Linux).
+9. `ncr plugins list/status/enable/disable` CLI for plugin visibility.
+10. `ncr doctor --verbose` shows profile, plugin status, routing table, trace mode.
+11. `NCR_TRACE=1` structured JSON trace mode for route decisions.
+12. Performance benchmarks at `docs/benchmarks.md`:
+    - Stable overhead: 2.9%–3.8% on grep, -1.4%–2.9% on find (PASS)
+    - Fast profile speedup: NOT MET (FFF cold-start + GAP-001)
+13. Local agent constitution pattern: `AGENTS.example.md` (tracked), `AGENTS.md` gitignored.
 
 ## Non-Negotiable Principles
 
@@ -194,24 +203,33 @@ Deliverable:
 ## Open Gaps to Resolve
 
 1. GAP-001 (FFF grep completeness mismatch) remains open.
-2. Upstream response/action on issue #365 required to move FFF grep toward default-on in stable profile.
+2. GAP-002 (smart-find noise-dir filtering vs native find) — **resolved**: smart-find now opt-in via profile/plugin system.
+3. Upstream response/action on issue #365 required to move FFF grep toward default-on in stable profile.
 
 ## Acceptance Checklist (Must All Be True)
 
-- [ ] SF-1 complete
-- [ ] SF-2 complete
-- [ ] SF-3 complete
-- [ ] SF-4 complete
-- [ ] SF-5 complete
-- [ ] SF-6 complete
-- [ ] `docs/compatibility-gaps.md` has no open high-severity gaps for default-enabled paths
-- [ ] README supported matrix matches actual router behavior
-- [ ] CI green on macOS + Linux
+- [x] SF-1 complete (27/30 conformance pass, 2 known gaps in fast-only profile, stable profile = native passthrough)
+- [x] SF-2 complete (safe fallback verified by conformance + stress tests)
+- [x] SF-3 partial — stable overhead PASS (<=4%), fast profile speedup NOT MET (FFF cold-start + GAP-001)
+- [x] SF-4 complete (plugin capability model, profile policy, ncr plugins CLI)
+- [x] SF-5 complete (doctor --verbose, NCR_TRACE=1 structured traces)
+- [x] SF-6 complete (issue templates, PR checklist, docs, CI)
+- [x] `docs/compatibility-gaps.md` has no open high-severity gaps for default-enabled paths
+- [x] README supported matrix matches actual router behavior
+- [ ] CI green on macOS + Linux (workflow exists, ready for first push to verify)
 
 ## Suggested Immediate Next Actions (Next Agent)
 
-1. Implement conformance test harness and fixtures (Phase 1).
-2. Add first CI workflow to run conformance tests on macOS/Linux.
-3. Add a machine-readable supported matrix file (for docs + tests to share one source of truth).
-4. Keep FFF grep in opt-in mode until SF-1 and GAP-001 are resolved.
+1. ~~Implement conformance test harness and fixtures (Phase 1).~~ DONE
+2. ~~Add first CI workflow to run conformance tests on macOS/Linux.~~ DONE
+3. ~~Add a machine-readable supported matrix file.~~ DONE
+4. ~~Resolve GAP-002: make smart-find opt-in for drop-in safety.~~ DONE
+5. ~~Implement Phase 2: Plugin contract model + profile policy + ncr plugins command.~~ DONE
+6. ~~Add `ncr doctor --verbose` diagnostics + NCR_TRACE=1 (Phase 3).~~ DONE
+7. ~~Add stress tests for subprocess failures/timeouts and shell edge cases.~~ DONE
+8. ~~Add contribution workflow: issue templates, PR checklist (SF-6).~~ DONE
+9. ~~Phase 4: Performance benchmarks.~~ DONE — stable PASS, fast NOT MET
+10. Push to origin and verify CI green on macOS + Linux.
+11. Resolve GAP-001 (upstream FFF grep completeness) to enable FFF grep toward drop_in_safe.
+12. Investigate FFF daemon/persistent session mode to meet fast profile speedup target.
 

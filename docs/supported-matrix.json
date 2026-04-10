@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "commands": {
+    "find": {
+      "default_backend": "/usr/bin/find",
+      "opt_in_backend": "smart-find",
+      "opt_in_env": "NCR_ENABLE_SMART_FIND=1 or NCR_PROFILE=fast",
+      "supported_shapes": [
+        {
+          "id": "find-native-default",
+          "description": "All shapes default to native find",
+          "example": "find . -type f",
+          "drop_in_safe": true,
+          "notes": "Native passthrough in stable profile, exact parity by definition"
+        },
+        {
+          "id": "find-smart-find",
+          "description": "Optimized find via smart-find (fast profile)",
+          "example": "NCR_PROFILE=fast find . -type f",
+          "drop_in_safe": false,
+          "notes": "GAP-002: smart-find filters noise dirs; opt-in via fast profile or NCR_ENABLE_SMART_FIND=1"
+        },
+        {
+          "id": "find-raw",
+          "description": "Raw bypass to native",
+          "example": "find --raw . -type f",
+          "args": ["--raw"],
+          "drop_in_safe": true,
+          "notes": "Routes to /usr/bin/find directly"
+        }
+      ],
+      "fallback_triggers": [
+        "SMART_FIND=0",
+        "--raw flag",
+        "smart-find not installed",
+        "stable profile (default)"
+      ]
+    },
+    "grep": {
+      "default_backend": "/usr/bin/grep",
+      "opt_in_backend": "fff",
+      "opt_in_env": "NCR_ENABLE_FFF_GREP=1",
+      "supported_shapes": [
+        {
+          "id": "grep-native-default",
+          "description": "All shapes default to native grep",
+          "example": "grep -R -n TODO src/",
+          "drop_in_safe": true,
+          "notes": "Native passthrough, exact parity by definition"
+        },
+        {
+          "id": "grep-fff-recursive-literal",
+          "description": "Recursive fixed-string literal search via FFF",
+          "example": "NCR_ENABLE_FFF_GREP=1 grep -R -n --fixed-strings TODO src/",
+          "required_flags": ["-R|-r", "-F|--fixed-strings"],
+          "optional_flags": ["-n|--line-number"],
+          "drop_in_safe": false,
+          "notes": "GAP-001: result completeness mismatch; NOT default-on"
+        }
+      ],
+      "fallback_triggers": [
+        "regex/meta patterns",
+        "-i/--ignore-case",
+        "unsupported flags",
+        "multi-path shapes",
+        "non-directory path",
+        "fff-mcp not available"
+      ]
+    }
+  }
+}

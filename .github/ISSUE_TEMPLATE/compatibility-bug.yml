@@ -1,0 +1,71 @@
+name: Compatibility Bug
+description: Report a mismatch between NCR-routed output and native command behavior
+labels: ["compatibility-bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Important**: NCR is a compatibility router. Any difference between NCR output
+        and native command output is a bug unless explicitly documented in `docs/compatibility-gaps.md`.
+
+  - type: input
+    id: command
+    attributes:
+      label: Command
+      description: The full command you ran
+      placeholder: "grep -R -n --fixed-strings TODO src/"
+    validations:
+      required: true
+
+  - type: textarea
+    id: native-output
+    attributes:
+      label: Native Output
+      description: Output from `/usr/bin/find` or `/usr/bin/grep`
+    validations:
+      required: true
+
+  - type: textarea
+    id: ncr-output
+    attributes:
+      label: NCR Output
+      description: Output from the NCR-routed command
+    validations:
+      required: true
+
+  - type: input
+    id: native-exit
+    attributes:
+      label: Native Exit Code
+    validations:
+      required: true
+
+  - type: input
+    id: ncr-exit
+    attributes:
+      label: NCR Exit Code
+    validations:
+      required: true
+
+  - type: dropdown
+    id: profile
+    attributes:
+      label: NCR Profile
+      options:
+        - stable (default)
+        - fast
+        - custom env vars
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: "OS, bun version, relevant tool versions"
+      value: |
+        - OS:
+        - bun:
+        - `ncr doctor` output:
+    validations:
+      required: true
