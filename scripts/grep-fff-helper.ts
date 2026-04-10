@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { execFileSync, spawn } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, realpathSync } from "node:fs";
 import path from "node:path";
 
 const args = new Map<string, string>();
@@ -11,7 +11,7 @@ for (let i = 2; i < process.argv.length; i += 2) {
 }
 
 const BASE_PATH = args.get("--path") ?? process.cwd();
-const BASE_PATH_ABS = path.resolve(BASE_PATH);
+const BASE_PATH_ABS_INPUT = path.resolve(BASE_PATH);
 const PATH_IS_ABSOLUTE_INPUT = path.isAbsolute(BASE_PATH);
 const QUERY = args.get("--query") ?? "";
 const WITH_LINE_NUMBER = (args.get("--line-number") ?? "1") === "1";
@@ -24,6 +24,17 @@ if (!QUERY) {
   console.error("grep-fff-helper: missing --query");
   process.exit(2);
 }
+
+function canonicalPath(p: string): string {
+  const resolved = path.resolve(p);
+  try {
+    return realpathSync.native(resolved);
+  } catch {
+    return resolved;
+  }
+}
+
+const BASE_PATH_ABS = canonicalPath(BASE_PATH_ABS_INPUT);
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -184,20 +195,23 @@ function getGitRoot(basePath: string): string | null {
   }
 }
 
-const GIT_ROOT = getGitRoot(BASE_PATH_ABS);
+const GIT_ROOT = (() => {
+  const root = getGitRoot(BASE_PATH_ABS_INPUT);
+  return root ? canonicalPath(root) : null;
+})();
 
 function resolveResultPath(rawFile: string): string {
-  if (path.isAbsolute(rawFile)) return path.normalize(rawFile);
+  if (path.isAbsolute(rawFile)) return canonicalPath(rawFile);
 
-  const fromBase = path.resolve(BASE_PATH_ABS, rawFile);
-  if (existsSync(fromBase)) return fromBase;
+  const fromBase = path.resolve(BASE_PATH_ABS_INPUT, rawFile);
+  if (existsSync(fromBase)) return canonicalPath(fromBase);
 
   if (GIT_ROOT) {
     const fromGitRoot = path.resolve(GIT_ROOT, rawFile);
-    if (existsSync(fromGitRoot)) return fromGitRoot;
+    if (existsSync(fromGitRoot)) return canonicalPath(fromGitRoot);
   }
 
-  return fromBase;
+  return path.resolve(fromBase);
 }
 
 function isWithinBase(absPath: string): boolean {
@@ -206,8 +220,13 @@ function isWithinBase(absPath: string): boolean {
 }
 
 function renderPathForOutput(absPath: string): string {
-  if (PATH_IS_ABSOLUTE_INPUT) return absPath;
-  const rel = path.relative(process.cwd(), absPath);
+  const relToBase = path.relative(BASE_PATH_ABS, absPath);
+  const asInputAlignedAbs = (relToBase === "" || (!relToBase.startsWith("..") && !path.isAbsolute(relToBase)))
+    ? path.resolve(BASE_PATH_ABS_INPUT, relToBase)
+    : absPath;
+
+  if (PATH_IS_ABSOLUTE_INPUT) return asInputAlignedAbs;
+  const rel = path.relative(process.cwd(), asInputAlignedAbs);
   return rel || ".";
 }
 

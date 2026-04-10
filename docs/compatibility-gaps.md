@@ -14,8 +14,10 @@ This file tracks known differences between NCR-routed behavior and native comman
 #### Reproduction
 
 ```bash
-API_SRC=/Users/merlin/_dev/ldis/apps/api/src
-WEB_SRC=/Users/merlin/_dev/ldis/apps/web/src
+API_SRC=apps/api/src
+WEB_SRC=apps/web/src
+
+# run from repo root
 
 SMART_GREP=0 grep -R -n --fixed-strings TODO "$API_SRC" | wc -l
 NCR_ENABLE_FFF_GREP=1 grep -R -n --fixed-strings TODO "$API_SRC" | wc -l
@@ -88,4 +90,17 @@ Smart-find is now gated behind the plugin system. In `stable` profile (default),
 
 ## Closed Gaps
 
-None yet.
+### GAP-003: symlinked base path caused false out-of-scope filtering in FFF helper
+
+- Date observed: 2026-04-10
+- Date closed: 2026-04-10
+- Area: `grep` plugin helper path scoping
+- Severity: High for correctness in symlinked paths (for example `/tmp` on macOS)
+
+#### Symptom
+
+When the search base path used a symlink alias, helper path comparisons could treat valid matches as outside scope, dropping all results.
+
+#### Resolution
+
+`scripts/grep-fff-helper.ts` now canonicalizes base, git-root, and resolved match paths before scope checks, while still rendering output paths in input-aligned form.
