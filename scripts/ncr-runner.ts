@@ -2,7 +2,7 @@
 import { spawn } from "node:child_process";
 import { stat } from "node:fs/promises";
 import path from "node:path";
-import { HOME } from "./lib/paths";
+import { BIN_STATE_DIR } from "./lib/paths";
 
 type RouteDecision = {
   backend: "native" | "smart-find" | "fff";
@@ -13,11 +13,15 @@ type RouteDecision = {
 
 const RAW_FIND = "/usr/bin/find";
 const RAW_GREP = "/usr/bin/grep";
-const HELPER = path.join(HOME, ".local", "share", "cmd-bridge", "bin", "grep-fff-helper.mjs");
+const HELPER = path.join(BIN_STATE_DIR, "grep-fff-helper.mjs");
+
+function isDebugEnabled(): boolean {
+  return process.env.NCR_DEBUG === "1" || process.env.CMD_BRIDGE_DEBUG === "1";
+}
 
 function debug(line: string): void {
-  if (process.env.CMD_BRIDGE_DEBUG === "1") {
-    process.stderr.write(`[cmd-bridge] ${line}\n`);
+  if (isDebugEnabled()) {
+    process.stderr.write(`[ncr] ${line}\n`);
   }
 }
 
@@ -211,7 +215,7 @@ async function main(): Promise<void> {
   const args = process.argv.slice(3);
 
   if (!command) {
-    process.stderr.write("cmd-bridge-runner: missing command (expected find|grep)\n");
+    process.stderr.write("ncr-runner: missing command (expected find|grep)\n");
     process.exit(2);
   }
 
@@ -227,7 +231,7 @@ async function main(): Promise<void> {
     process.exit(code);
   }
 
-  process.stderr.write(`cmd-bridge-runner: unsupported command ${command}\n`);
+  process.stderr.write(`ncr-runner: unsupported command ${command}\n`);
   process.exit(2);
 }
 

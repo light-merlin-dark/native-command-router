@@ -5,12 +5,25 @@ node_modules/
 dist/
 *.tsbuildinfo
 
-# Local state
-.state/
+# Test and coverage artifacts
+coverage/
+.nyc_output/
 
-# Env
+# Local runtime and temp
+.state/
+tmp/
+temp/
+*.tmp
+*.swp
+
+# Local benchmark outputs
+bench-results/
+artifacts/
+
+# Env and secrets
 .env
 .env.*
+!.env.example
 
 # OS/editor
 .DS_Store
@@ -19,3 +32,7 @@ dist/
 
 # Logs
 *.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*

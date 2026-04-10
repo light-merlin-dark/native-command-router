@@ -1,6 +1,6 @@
 import { copyFile, rm } from "node:fs/promises";
 import path from "node:path";
-import { BACKUP_DIR, BIN_STATE_DIR, LOCAL_BIN_DIR } from "./lib/paths";
+import { BACKUP_DIR, BIN_STATE_DIR, LEGACY_STATE_DIR, LOCAL_BIN_DIR } from "./lib/paths";
 import { fileExists, readTextOrEmpty, removeIfExists } from "./lib/fs-utils";
 
 async function uninstallWrapper(command: "find" | "grep"): Promise<string> {
@@ -10,8 +10,9 @@ async function uninstallWrapper(command: "find" | "grep"): Promise<string> {
   const exists = await fileExists(target);
   if (exists) {
     const current = await readTextOrEmpty(target);
-    if (!current.includes(`cmd-bridge-managed: ${command}`)) {
-      return `${command}: skipped (not managed by cmd-bridge)`;
+    const managed = current.includes(`ncr-managed: ${command}`) || current.includes(`cmd-bridge-managed: ${command}`);
+    if (!managed) {
+      return `${command}: skipped (not managed by ncr)`;
     }
     await rm(target, { force: true });
   }
@@ -29,11 +30,14 @@ async function main(): Promise<void> {
   const results: string[] = [];
   results.push(await uninstallWrapper("find"));
   results.push(await uninstallWrapper("grep"));
-  await removeIfExists(path.join(BIN_STATE_DIR, "cmd-bridge-runner.mjs"));
+  await removeIfExists(path.join(BIN_STATE_DIR, "ncr-runner.mjs"));
   await removeIfExists(path.join(BIN_STATE_DIR, "grep-fff-helper.mjs"));
   await removeIfExists(path.join(BIN_STATE_DIR, "fff-find-helper.mjs"));
+  await removeIfExists(path.join(LEGACY_STATE_DIR, "bin", "cmd-bridge-runner.mjs"));
+  await removeIfExists(path.join(LEGACY_STATE_DIR, "bin", "grep-fff-helper.mjs"));
+  await removeIfExists(path.join(LEGACY_STATE_DIR, "bin", "fff-find-helper.mjs"));
 
-  console.log("cmd-bridge uninstall complete");
+  console.log("ncr uninstall complete");
   for (const line of results) {
     console.log(`- ${line}`);
   }

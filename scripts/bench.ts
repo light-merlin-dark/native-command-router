@@ -128,9 +128,14 @@ function printTable(title: string, rows: BenchResult[]): void {
 }
 
 async function main(): Promise<void> {
-  const helperDir = path.join(HOME, ".local", "share", "cmd-bridge", "bin");
-  const grepHelper = path.join(helperDir, "grep-fff-helper.mjs");
-  const findHelper = path.join(helperDir, "fff-find-helper.mjs");
+  const legacyHelperDir = path.join(HOME, ".local", "share", "cmd-bridge", "bin");
+  const ncrHelperDir = path.join(HOME, ".local", "share", "ncr", "bin");
+  const grepHelper = (await pathExists(path.join(ncrHelperDir, "grep-fff-helper.mjs")))
+    ? path.join(ncrHelperDir, "grep-fff-helper.mjs")
+    : path.join(legacyHelperDir, "grep-fff-helper.mjs");
+  const findHelper = (await pathExists(path.join(ncrHelperDir, "fff-find-helper.mjs")))
+    ? path.join(ncrHelperDir, "fff-find-helper.mjs")
+    : path.join(legacyHelperDir, "fff-find-helper.mjs");
 
   const hasRg = await commandExists("rg");
   const hasFd = await commandExists("fd");
@@ -189,7 +194,7 @@ async function main(): Promise<void> {
     },
   ];
 
-  console.log("cmd-bridge benchmark");
+  console.log("ncr benchmark");
   console.log(`- path: ${TARGET_PATH}`);
   console.log(`- grep query: ${GREP_QUERY}`);
   console.log(`- file query: ${FILE_QUERY}`);

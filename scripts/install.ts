@@ -25,7 +25,7 @@ async function installWrapper(command: "find" | "grep", templatePath: string): P
 
   if (await fileExists(target)) {
     const current = await readTextOrEmpty(target);
-    const managed = current.includes(`cmd-bridge-managed: ${command}`);
+    const managed = current.includes(`ncr-managed: ${command}`) || current.includes(`cmd-bridge-managed: ${command}`);
     if (!managed) {
       await copyIfMissing(target, backup);
     }
@@ -59,8 +59,8 @@ async function buildFindHelper(): Promise<string> {
 }
 
 async function buildRunner(): Promise<string> {
-  const runnerSrc = path.join(ROOT, "scripts", "cmd-bridge-runner.ts");
-  const runnerOut = path.join(BIN_STATE_DIR, "cmd-bridge-runner.mjs");
+  const runnerSrc = path.join(ROOT, "scripts", "ncr-runner.ts");
+  const runnerOut = path.join(BIN_STATE_DIR, "ncr-runner.mjs");
   await ensureDir(BIN_STATE_DIR);
 
   await $`bun build ${runnerSrc} --target node --format esm --outfile ${runnerOut}`.quiet();
@@ -85,7 +85,7 @@ async function main(): Promise<void> {
     results.push(await ensurePathPrepend(file));
   }
 
-  console.log("cmd-bridge install complete");
+  console.log("ncr install complete");
   for (const line of results) {
     console.log(`- ${line}`);
   }

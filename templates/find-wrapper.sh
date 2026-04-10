@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# cmd-bridge-managed: find
+# ncr-managed: find
 set -u
 
-RUNNER="$HOME/.local/share/cmd-bridge/bin/cmd-bridge-runner.mjs"
+RUNNER="$HOME/.local/share/ncr/bin/ncr-runner.mjs"
 
 if [[ -f "$RUNNER" ]]; then
   exec node "$RUNNER" find "$@"

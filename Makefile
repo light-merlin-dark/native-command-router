@@ -1,16 +1,21 @@
 SHELL := /bin/bash
+BENCH_PATH ?= .
+BENCH_GREP_QUERY ?= TODO
+BENCH_FILE_QUERY ?= ts
+BENCH_RUNS ?= 5
+BENCH_WARMUP ?= 1
 
-.PHONY: help bootstrap install uninstall reinstall doctor bench bench-mcp
+.PHONY: help bootstrap install uninstall reinstall doctor bench bench-session bench-mcp
 
 help:
-	@echo "cmd-bridge"
+	@echo "native-command-router (ncr)"
 	@echo "  make bootstrap   # install bun deps"
 	@echo "  make install     # install managed wrappers to ~/.local/bin"
 	@echo "  make uninstall   # remove managed wrappers and restore backups"
 	@echo "  make reinstall   # uninstall then install"
-	@echo "  make doctor      # print bridge status"
+	@echo "  make doctor      # print router status"
 	@echo "  make bench       # run native vs bridge vs fff benchmark"
-	@echo "  make bench-mcp   # run fff warm/cold session benchmark"
+	@echo "  make bench-session # run backend warm/cold session benchmark"
 
 bootstrap:
 	bun install
@@ -27,7 +32,9 @@ doctor:
 	bun run scripts/doctor.ts
 
 bench:
-	bun run scripts/bench.ts --path /Users/merlin/_dev/devh --grep-query TODO --file-query ts --runs 5 --warmup 1
+	bun run scripts/bench.ts --path "$(BENCH_PATH)" --grep-query "$(BENCH_GREP_QUERY)" --file-query "$(BENCH_FILE_QUERY)" --runs "$(BENCH_RUNS)" --warmup "$(BENCH_WARMUP)"
 
-bench-mcp:
-	bun run scripts/bench-mcp.ts --path /Users/merlin/_dev/devh --tool grep --query TODO --mode warm --iters 20 --max-results 200
+bench-session:
+	bun run scripts/bench-session.ts --path "$(BENCH_PATH)" --tool grep --query "$(BENCH_GREP_QUERY)" --mode warm --iters 20 --max-results 200
+
+bench-mcp: bench-session
