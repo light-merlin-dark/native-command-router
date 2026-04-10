@@ -1,6 +1,9 @@
 # Dependencies
 node_modules/
 
+# Local AI-agent guidance (machine/user specific; do not commit)
+AGENTS.md
+
 # Build output
 dist/
 *.tsbuildinfo

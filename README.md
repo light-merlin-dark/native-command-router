@@ -109,6 +109,13 @@ This restores backed-up binaries when available and removes NCR-managed wrappers
 - NCR-first architecture (router core + policy engine).
 - Optimization plugins as optional backends.
 - Compatibility conformance tests as release gates to prevent output drift.
+- Known behavior differences are tracked in `docs/compatibility-gaps.md`.
+
+## Local Agent Guidance
+
+- `AGENTS.md` is intentionally local-only and gitignored.
+- Use `AGENTS.example.md` as the template for local agent instructions.
+- Compatibility policy in agent guidance is binding: unresolved plugin/native mismatches must be surfaced and tracked.
 
 ## License
 
