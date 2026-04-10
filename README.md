@@ -110,6 +110,7 @@ This restores backed-up binaries when available and removes NCR-managed wrappers
 - Optimization plugins as optional backends.
 - Compatibility conformance tests as release gates to prevent output drift.
 - Known behavior differences are tracked in `docs/compatibility-gaps.md`.
+- Full handoff plan and hard success factors are tracked in `docs/HANDOFF.md`.
 
 ## Local Agent Guidance
 
