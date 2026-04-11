@@ -11,7 +11,9 @@ dist/
 # Test and coverage artifacts
 coverage/
 .nyc_output/
-tests/fixtures/repo/
+test/fixtures/repo/
+
+docs/
 
 # Local runtime and temp
 .state/

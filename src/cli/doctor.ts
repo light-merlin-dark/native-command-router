@@ -2,9 +2,9 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import path from "node:path";
-import { BIN_STATE_DIR, LEGACY_STATE_DIR, LOCAL_BIN_DIR } from "./lib/paths";
-import { fileExists, readTextOrEmpty } from "./lib/fs-utils";
-import { PLUGINS, resolveProfile, isPluginEnabled } from "./lib/plugins";
+import { BIN_STATE_DIR, LEGACY_STATE_DIR, LOCAL_BIN_DIR } from "../core/paths";
+import { fileExists, readTextOrEmpty } from "../core/fs-utils";
+import { PLUGINS, resolveProfile, isPluginEnabled } from "../core/plugins";
 
 const execFileAsync = promisify(execFile);
 

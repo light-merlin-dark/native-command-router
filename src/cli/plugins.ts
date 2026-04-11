@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-import { PLUGINS, resolveProfile, isPluginEnabled } from "../scripts/lib/plugins";
+import { PLUGINS, resolveProfile, isPluginEnabled } from "../core/plugins";
 
 type Action = "list" | "status" | "enable" | "disable";
 

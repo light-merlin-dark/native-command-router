@@ -2,10 +2,10 @@ import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { $ } from "bun";
-import { BACKUP_DIR, BIN_STATE_DIR, LOCAL_BIN_DIR, PATH_LINE, SHELL_FILES } from "./lib/paths";
-import { copyIfMissing, ensureDir, fileExists, readTextOrEmpty, writeExecutable } from "./lib/fs-utils";
+import { BACKUP_DIR, BIN_STATE_DIR, LOCAL_BIN_DIR, PATH_LINE, SHELL_FILES } from "../core/paths";
+import { copyIfMissing, ensureDir, fileExists, readTextOrEmpty, writeExecutable } from "../core/fs-utils";
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 async function ensurePathPrepend(shellFile: string): Promise<string> {
   const exists = await fileExists(shellFile);
@@ -37,7 +37,7 @@ async function installWrapper(command: "find" | "grep", templatePath: string): P
 }
 
 async function buildGrepHelper(): Promise<string> {
-  const helperSrc = path.join(ROOT, "scripts", "grep-fff-helper.ts");
+  const helperSrc = path.join(ROOT, "src", "helpers", "grep-fff-helper.ts");
   const helperOut = path.join(BIN_STATE_DIR, "grep-fff-helper.mjs");
   await ensureDir(BIN_STATE_DIR);
 
@@ -48,7 +48,7 @@ async function buildGrepHelper(): Promise<string> {
 }
 
 async function buildFindHelper(): Promise<string> {
-  const helperSrc = path.join(ROOT, "scripts", "fff-find-helper.ts");
+  const helperSrc = path.join(ROOT, "src", "helpers", "fff-find-helper.ts");
   const helperOut = path.join(BIN_STATE_DIR, "fff-find-helper.mjs");
   await ensureDir(BIN_STATE_DIR);
 
@@ -59,7 +59,7 @@ async function buildFindHelper(): Promise<string> {
 }
 
 async function buildRunner(): Promise<string> {
-  const runnerSrc = path.join(ROOT, "scripts", "ncr-runner.ts");
+  const runnerSrc = path.join(ROOT, "src", "router.ts");
   const runnerOut = path.join(BIN_STATE_DIR, "ncr-runner.mjs");
   await ensureDir(BIN_STATE_DIR);
 
@@ -78,8 +78,8 @@ async function main(): Promise<void> {
   results.push(await buildRunner());
   results.push(await buildGrepHelper());
   results.push(await buildFindHelper());
-  results.push(await installWrapper("find", path.join(ROOT, "templates", "find-wrapper.sh")));
-  results.push(await installWrapper("grep", path.join(ROOT, "templates", "grep-wrapper.sh")));
+  results.push(await installWrapper("find", path.join(ROOT, "src", "templates", "find-wrapper.sh")));
+  results.push(await installWrapper("grep", path.join(ROOT, "src", "templates", "grep-wrapper.sh")));
 
   for (const file of SHELL_FILES) {
     results.push(await ensurePathPrepend(file));

@@ -2,7 +2,7 @@
 import { spawn } from "node:child_process";
 import { stat } from "node:fs/promises";
 import path from "node:path";
-import { HOME } from "./lib/paths";
+import { HOME } from "../src/core/paths";
 
 type BenchResult = {
   name: string;

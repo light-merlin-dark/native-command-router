@@ -14,7 +14,7 @@ const RUNS = Number(argv.get("--runs") ?? "5");
 const WARMUP = Number(argv.get("--warmup") ?? "1");
 
 if (!REPO) {
-  console.error("usage: bun run tests/bench-fast-profile.ts --repo /path --query TODO");
+  console.error("usage: bun run test/bench/fast-profile.ts --repo /path --query TODO");
   process.exit(1);
 }
 

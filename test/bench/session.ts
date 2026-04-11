@@ -14,7 +14,7 @@ const TOOL = argv.get("--tool") ?? "find_files";
 const QUERY = argv.get("--query") ?? "server";
 const ITERS = Number(argv.get("--iters") ?? "10");
 const MAX_RESULTS = Number(argv.get("--max-results") ?? "20");
-const MODE = argv.get("--mode") ?? "warm"; // warm | cold
+const MODE = argv.get("--mode") ?? "warm";
 const NO_WARMUP = (argv.get("--no-warmup") ?? "1") === "1";
 const TIMEOUT_MS = Number(argv.get("--timeout-ms") ?? "15000");
 const SCAN_WAIT_MS = Number(argv.get("--scan-wait-ms") ?? "120000");

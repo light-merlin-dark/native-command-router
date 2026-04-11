@@ -34,7 +34,7 @@ type TestCase = {
 };
 
 const FIXTURE_ROOT = path.resolve(path.dirname(import.meta.url.replace("file://", "")), "fixtures", "repo");
-const NCR_RUNNER = path.resolve(path.dirname(import.meta.url.replace("file://", "")), "..", "scripts", "ncr-runner.ts");
+const NCR_RUNNER = path.resolve(path.dirname(import.meta.url.replace("file://", "")), "..", "src", "router.ts");
 
 function ensureFixtureRepo(): void {
   if (existsSync(FIXTURE_ROOT)) return;

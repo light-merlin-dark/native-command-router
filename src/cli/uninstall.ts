@@ -1,7 +1,7 @@
 import { copyFile, rm } from "node:fs/promises";
 import path from "node:path";
-import { BACKUP_DIR, BIN_STATE_DIR, LEGACY_STATE_DIR, LOCAL_BIN_DIR } from "./lib/paths";
-import { fileExists, readTextOrEmpty, removeIfExists } from "./lib/fs-utils";
+import { BACKUP_DIR, BIN_STATE_DIR, LEGACY_STATE_DIR, LOCAL_BIN_DIR } from "../core/paths";
+import { fileExists, readTextOrEmpty, removeIfExists } from "../core/fs-utils";
 
 async function uninstallWrapper(command: "find" | "grep"): Promise<string> {
   const target = path.join(LOCAL_BIN_DIR, command);

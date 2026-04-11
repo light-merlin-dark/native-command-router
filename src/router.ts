@@ -2,9 +2,9 @@
 import { spawn } from "node:child_process";
 import { stat } from "node:fs/promises";
 import path from "node:path";
-import { BIN_STATE_DIR } from "./lib/paths";
-import { PLUGINS, resolveProfile, isPluginEnabled, getPluginForRoute } from "./lib/plugins";
-import type { ProfileName } from "./lib/plugins";
+import { BIN_STATE_DIR } from "./core/paths";
+import { PLUGINS, resolveProfile, isPluginEnabled } from "./core/plugins";
+import type { ProfileName } from "./core/plugins";
 
 type RouteDecision = {
   backend: "native" | "smart-find" | "fff";

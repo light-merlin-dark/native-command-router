@@ -36,6 +36,21 @@ NCR is not a command replacement language. It is a compatibility router.
 - Runner selects backend based on active profile and plugin availability.
 - Optimization plugins are opt-in via profile or env var.
 
+## Project Structure
+
+```
+src/
+  core/              # Shared modules (paths, plugins, fs-utils)
+  router.ts          # Command router / entry point
+  helpers/           # FFF helper scripts (find, grep)
+  cli/               # Install, uninstall, doctor, plugins commands
+  templates/         # Shell wrapper templates
+test/
+  conformance.ts     # Conformance test suite
+  bench.ts           # Standalone benchmark
+  bench/             # Benchmark variants (perf, fast-profile, session)
+```
+
 ## Profiles
 
 NCR uses a profile system to control routing behavior:
@@ -84,10 +99,10 @@ Falls back to native grep for:
 ## Plugins
 
 ```bash
-make plugins                    # list plugins
-bun run scripts/plugins-cli.ts status   # detailed status
-bun run scripts/plugins-cli.ts enable smart-find
-bun run scripts/plugins-cli.ts disable smart-find
+make plugins                              # list plugins
+bun run src/cli/plugins.ts status         # detailed status
+bun run src/cli/plugins.ts enable smart-find
+bun run src/cli/plugins.ts disable smart-find
 ```
 
 | Plugin | Capability | Profile | Env Enable | Env Disable |
@@ -129,7 +144,7 @@ NCR_DEBUG=1 find . -type f
 make test-conformance   # run full conformance suite
 ```
 
-Compares NCR output against native commands for supported matrix shapes. See `docs/supported-matrix.json` for the full command shape registry.
+Compares NCR output against native commands for supported matrix shapes.
 
 ## Benchmarking
 
@@ -156,18 +171,9 @@ make uninstall
 
 This restores backed-up binaries when available and removes NCR-managed wrappers.
 
-## Project Direction
-
-- NCR-first architecture (router core + policy engine + plugin registry).
-- Optimization plugins as optional backends gated by profile.
-- Compatibility conformance tests as release gates to prevent output drift.
-- Known behavior differences are tracked in `docs/compatibility-gaps.md`.
-- Full handoff plan and hard success factors are tracked in `docs/HANDOFF.md`.
-
 ## Local Agent Guidance
 
 - `AGENTS.md` is intentionally local-only and gitignored.
-- Use `AGENTS.example.md` as the template for local agent instructions.
 - Compatibility policy in agent guidance is binding: unresolved plugin/native mismatches must be surfaced and tracked.
 
 ## License

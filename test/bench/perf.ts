@@ -100,15 +100,9 @@ function printOverhead(nativeMs: number, ncrMs: number, label: string): void {
   console.log(`  overhead: ${label} — ${overhead.toFixed(1)}% (${nativeMs.toFixed(1)}ms native vs ${ncrMs.toFixed(1)}ms ncr) [${icon}]`);
 }
 
-function printSpeedup(nativeMs: number, fastMs: number, label: string): void {
-  const speedup = nativeMs / fastMs;
-  const icon = speedup >= 2 ? "OK" : "LOW";
-  console.log(`  speedup:  ${label} — ${speedup.toFixed(2)}x (${nativeMs.toFixed(1)}ms native vs ${fastMs.toFixed(1)}ms fast) [${icon}]`);
-}
-
 async function main(): Promise<void> {
   if (REPOS.length === 0) {
-    console.error("usage: bun run tests/bench-perf.ts --repos /path/to/repo1,/path/to/repo2 [--grep-query TODO] [--find-query ts]");
+    console.error("usage: bun run test/bench/perf.ts --repos /path/to/repo1,/path/to/repo2 [--grep-query TODO] [--find-query ts]");
     process.exit(1);
   }
 
